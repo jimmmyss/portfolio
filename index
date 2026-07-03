@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PORTFOLIO</title>
+<meta name="description" content="Portfolio" />
+<style>
+  :root{
+    --bg:#000000;
+    --fg:#ffffff;
+    --muted:#7d7d7d;
+    --line:#7d7d7d;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --term:"Cascadia Mono","Cascadia Code",Consolas,"Courier New",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font-family:var(--mono);
+    font-size:16px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  img,video{display:block}
+
+  .wrap{
+    max-width:1200px;
+    margin:0 auto;
+    /* left/right only — vertical padding is set per-section so it isn't
+       overridden by this class's higher specificity */
+    padding-left:clamp(18px,5vw,48px);
+    padding-right:clamp(18px,5vw,48px);
+  }
+
+  /* page top + bottom padding */
+  main{
+    padding-top:clamp(60px,11vh,120px);
+    padding-bottom:clamp(56px,10vh,110px);
+  }
+
+  /* ---------- one project (tighter spacing) ---------- */
+  .project{
+    padding-bottom:clamp(26px,3.6vw,46px);
+    margin-bottom:clamp(26px,3.6vw,46px);
+    border-bottom:1px solid var(--line);
+  }
+  .project:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+
+  .title{
+    display:flex;
+    align-items:baseline;
+    gap:clamp(10px,1.6vw,18px);
+    flex-wrap:wrap;
+    font-size:clamp(22px,3.4vw,36px);
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.005em;
+    line-height:1.08;
+  }
+  .num{white-space:nowrap}
+  .name{white-space:nowrap}
+  .title a{
+    text-decoration:none;
+    display:inline-flex;
+    align-items:baseline;
+    gap:.4ch;
+  }
+  .title a:hover{text-decoration:underline}
+  .title .arrow{font-size:.62em}
+
+  /* LIVE: the title always floats + always glows (breathing).
+     A small flash at the minimum, a stronger one at the maximum.
+     Text colour never changes — only position + halo. */
+  .title.live{
+    animation:breathe 4.6s ease-in-out infinite both;
+    will-change:transform;
+  }
+  @keyframes breathe{
+    0%,100%{
+      transform:translateY(4px);
+      text-shadow:0 0 6px rgba(255,255,255,.35);
+    }
+    50%{
+      transform:translateY(-4px);
+      text-shadow:0 0 16px rgba(255,255,255,.95),0 0 34px rgba(255,255,255,.5);
+    }
+  }
+
+  /* NOT live: terminal / command-prompt caption, no box */
+  .uc{
+    font-family:var(--term);
+    font-size:.46em;
+    letter-spacing:.02em;
+    text-transform:lowercase;
+    color:var(--muted);
+    align-self:center;
+    white-space:nowrap;
+  }
+  .uc::before{content:"> "}
+  .uc::after{content:"_";animation:caret 1.05s steps(1,end) infinite}
+  @keyframes caret{50%{opacity:0}}
+
+  /* ---------- the single media row ---------- */
+  .row{
+    display:flex;
+    gap:12px;
+    margin-top:clamp(16px,2.4vw,24px);
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding-bottom:12px;
+    scrollbar-width:thin;
+    scrollbar-color:var(--fg) transparent;
+  }
+  .row::-webkit-scrollbar{height:8px}
+  .row::-webkit-scrollbar-thumb{background:var(--fg)}
+  .row::-webkit-scrollbar-track{background:transparent}
+
+  .thumb{
+    flex:0 0 auto;
+    height:clamp(122px,17vw,182px);
+    border:1px solid var(--fg);
+    background:#000;
+    padding:0;margin:0;
+    cursor:pointer;
+    position:relative;
+    line-height:0;
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .thumb img{height:100%;width:auto;max-width:none;transition:opacity .15s linear}
+  .thumb:hover img,.thumb:focus-visible img{opacity:.7}
+  .thumb:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+
+  .play{
+    position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    width:46px;height:46px;
+    border:2px solid #fff;border-radius:50%;
+    background:rgba(0,0,0,.4);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .play::after{
+    content:"";
+    border-style:solid;border-width:7px 0 7px 12px;
+    border-color:transparent transparent transparent #fff;
+    margin-left:3px;
+  }
+
+  /* ---------- description under each project ---------- */
+  .desc{
+    margin-top:clamp(14px,2vw,20px);
+    max-width:64ch;
+    color:var(--muted);
+    font-size:13.5px;
+    line-height:1.65;
+  }
+
+  /* ---------- footer ---------- */
+  footer{padding:0 0 clamp(28px,6vw,56px)}
+  .foot-mail{
+    font-size:13px;letter-spacing:.05em;
+    color:var(--muted);
+  }
+
+  /* ---------- lightbox ---------- */
+  .lb{
+    position:fixed;inset:0;z-index:100;
+    background:rgba(0,0,0,.97);
+    display:none;align-items:center;justify-content:center;
+  }
+  .lb.open{display:flex}
+  .lb__stage{
+    max-width:92vw;max-height:88vh;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .lb__stage img,
+  .lb__stage video{max-width:92vw;max-height:86vh;width:auto;height:auto}
+
+  .lb button{
+    font:inherit;background:transparent;color:#fff;
+    border:1px solid #fff;cursor:pointer;line-height:1;
+    transition:background .12s linear,color .12s linear;
+  }
+  .lb button:hover{background:#fff;color:#000}
+  .lb__close{
+    position:absolute;top:16px;right:16px;
+    font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:9px 12px;
+  }
+  .lb__nav{
+    position:absolute;top:50%;transform:translateY(-50%);
+    font-size:26px;width:52px;height:64px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .lb__prev{left:14px}
+  .lb__next{right:14px}
+  .lb__count{
+    position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
+    color:var(--muted);font-size:13px;letter-spacing:.18em;
+  }
+
+  @media (max-width:560px){
+    .lb__nav{width:42px;height:54px;font-size:22px}
+    .lb__prev{left:6px}.lb__next{right:6px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .title.live{animation:none}
+    .uc::after{animation:none}
+    .thumb img{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<main class="wrap" id="work"></main>
+
+<footer class="wrap">
+  <p class="foot-mail" id="foot-mail"></p>
+</footer>
+
+<!-- lightbox -->
+<div class="lb" id="lb" aria-hidden="true">
+  <button class="lb__close" id="lb-close" type="button">Close ✕</button>
+  <button class="lb__nav lb__prev" id="lb-prev" type="button" aria-label="Previous">‹</button>
+  <div class="lb__stage" id="lb-stage"></div>
+  <button class="lb__nav lb__next" id="lb-next" type="button" aria-label="Next">›</button>
+  <div class="lb__count" id="lb-count"></div>
+</div>
+
+<script>
+/* =========================================================================
+   EDIT HERE
+   =========================================================================
+   Each project:
+     num     "00", "01", ...            shown as 00/
+     title   project name
+     folder  folder name exactly as on disk
+     live    a URL -> title links there and slowly floats + glows (breathing).
+             leave it out -> title shows a "> under construction" terminal tag.
+     desc    one short line shown under the media.
+     media   files in the folder, in the order they appear in the row:
+               { video: "desktop.mp4", poster: "desktop.jpg" }
+               { video: "mobile.mp4",  poster: "mobile.jpg"  }
+               { img: "photo 1.png" }, { img: "photo 2.png" } ...
+
+   Naming: desktop.mp4 / mobile.mp4 (+ .jpg poster), photo 1.png, photo 2.png ...
+   NOTE: the descriptions below are my guesses from your screenshots — edit freely.
+   ========================================================================= */
+
+const SITE = { email: "jimathanas0@yahoo.gr" };
+
+const PROJECTS = [
+  {
+    num: "00",
+    title: "NAMA",
+    folder: "NAMA",
+    // live: "https://...",
+    desc: "Website for a restaurant with reservations and online ordering capabilities. (Images and videos are still stock footage and not actual footage)",
+    media: [
+      { video: "desktop.mp4", poster: "desktop.jpg" },
+      { video: "mobile.mp4",  poster: "mobile.jpg"  },
+      { img: "photo 1.png" }
+    ]
+  },
+  {
+    num: "01",
+    title: "Billiard Honesty",
+    folder: "Billiard Honesty",
+    desc: "E-commerce storefront for billiard cues, tables and apparel. (Images and videos are still stock footage and not actual footage)",
+    media: [
+      { video: "desktop.mp4", poster: "desktop.jpg" },
+      { video: "mobile.mp4",  poster: "mobile.jpg"  }
+    ]
+  },
+  {
+    num: "02",
+    title: "ΚΡΕΜΑ",
+    folder: "ΚΡΕΜΑ",
+    desc: "Online shop and catalog for a streetwear label.",
+    media: [
+      { video: "desktop.mp4", poster: "desktop.jpg" },
+      { img: "photo 1.png" }
+    ]
+  },
+  {
+    num: "03",
+    title: "FOSSCOMM 2026",
+    folder: "FOSSCOMM-2026",
+    live: "https://2026.fosscomm.gr/",
+    desc: "Website for the 19th Panhellenic free & open-source software meeting.",
+    media: [
+      { img: "photo 1.png" },
+      { img: "photo 2.png" },
+      { img: "photo 3.png" }
+    ]
+  },
+  {
+    num: "04",
+    title: "ΕΥ ΠΟΛΙΤΕΥΕΣΘΑΙ",
+    folder: "ΕΥ ΠΟΛΙΤΕΥΕΣΘΑΙ",
+    live: "https://eupoliteuesthai.com/",
+    desc: "Blog for political and civic commentary.",
+    media: [
+      { img: "photo 1.png" }
+    ]
+  },
+  {
+    num: "05",
+    title: "GlossAPI",
+    folder: "GlossAPI",
+    live: "https://glossapi.gr/",
+    desc: "Landing page of an open-source project.",
+    media: [
+      { img: "photo 1.png" }
+    ]
+  }
+];
+
+/* =========================================================================
+   Rendering — you shouldn't need to touch anything below.
+   ========================================================================= */
+function mediaPath(folder, file){
+  return folder.split("/").map(encodeURIComponent).join("/") + "/" + encodeURIComponent(file);
+}
+function el(tag, attrs, text){
+  const n = document.createElement(tag);
+  if(attrs) for(const k in attrs){ if(attrs[k] != null) n.setAttribute(k, attrs[k]); }
+  if(text != null) n.textContent = text;
+  return n;
+}
+
+function renderProject(p){
+  const items = (p.media || []).map(m => m.video
+    ? { type:"video", src: mediaPath(p.folder, m.video), poster: m.poster ? mediaPath(p.folder, m.poster) : null }
+    : { type:"image", src: mediaPath(p.folder, m.img) });
+
+  const art = el("article", {class:"project"});
+
+  const h2 = el("h2", {class:"title" + (p.live ? " live" : "")});
+  h2.appendChild(el("span", {class:"num"}, p.num + "/"));
+  if(p.live){
+    const a = el("a", {href:p.live, target:"_blank", rel:"noopener"});
+    a.appendChild(el("span", {class:"name"}, p.title));
+    a.appendChild(el("span", {class:"arrow", "aria-hidden":"true"}, "↗"));
+    h2.appendChild(a);
+  } else {
+    h2.appendChild(el("span", {class:"name"}, p.title));
+    h2.appendChild(el("span", {class:"uc"}, "under construction"));
+  }
+  art.appendChild(h2);
+
+  const row = el("div", {class:"row"});
+  items.forEach((m, i) => {
+    const btn = el("button", {class:"thumb", type:"button", "aria-label":"Open " + p.title + " media"});
+    const img = el("img", {loading:"lazy", alt:p.title});
+    img.src = m.type === "video" ? (m.poster || "") : m.src;
+    btn.appendChild(img);
+    if(m.type === "video") btn.appendChild(el("span", {class:"play", "aria-hidden":"true"}));
+    btn.addEventListener("click", () => openLightbox(items, i));
+    row.appendChild(btn);
+  });
+  art.appendChild(row);
+
+  if(p.desc && p.desc.trim()) art.appendChild(el("p", {class:"desc"}, p.desc));
+  return art;
+}
+
+/* ---------- lightbox ---------- */
+const lb = document.getElementById("lb");
+const lbStage = document.getElementById("lb-stage");
+const lbCount = document.getElementById("lb-count");
+const lbPrev = document.getElementById("lb-prev");
+const lbNext = document.getElementById("lb-next");
+let lbItems = [], lbIndex = 0;
+
+function lbRender(){
+  const m = lbItems[lbIndex];
+  lbStage.innerHTML = "";
+  if(m.type === "video"){
+    const v = el("video", {controls:"", playsinline:"", src:m.src});
+    if(m.poster) v.setAttribute("poster", m.poster);
+    lbStage.appendChild(v);
+    v.play().catch(()=>{});
+  } else {
+    lbStage.appendChild(el("img", {src:m.src, alt:""}));
+  }
+  lbCount.textContent = String(lbIndex+1).padStart(2,"0") + " / " + String(lbItems.length).padStart(2,"0");
+  const multi = lbItems.length > 1;
+  lbPrev.style.visibility = multi ? "visible" : "hidden";
+  lbNext.style.visibility = multi ? "visible" : "hidden";
+}
+function openLightbox(items, index){
+  lbItems = items; lbIndex = index;
+  lbRender();
+  lb.classList.add("open");
+  lb.setAttribute("aria-hidden","false");
+  document.body.style.overflow = "hidden";
+}
+function closeLightbox(){
+  lb.classList.remove("open");
+  lb.setAttribute("aria-hidden","true");
+  lbStage.innerHTML = "";
+  document.body.style.overflow = "";
+}
+function step(d){
+  if(lbItems.length < 2) return;
+  lbIndex = (lbIndex + d + lbItems.length) % lbItems.length;
+  lbRender();
+}
+lbPrev.addEventListener("click", () => step(-1));
+lbNext.addEventListener("click", () => step(1));
+document.getElementById("lb-close").addEventListener("click", closeLightbox);
+lb.addEventListener("click", e => { if(e.target === lb) closeLightbox(); });
+document.addEventListener("keydown", e => {
+  if(!lb.classList.contains("open")) return;
+  if(e.key === "Escape") closeLightbox();
+  else if(e.key === "ArrowLeft") step(-1);
+  else if(e.key === "ArrowRight") step(1);
+});
+
+/* ---------- mount ---------- */
+(function(){
+  document.getElementById("foot-mail").textContent = "Email: " + SITE.email;
+  const main = document.getElementById("work");
+  PROJECTS.forEach(p => main.appendChild(renderProject(p)));
+})();
+</script>
+</body>
+</html>
